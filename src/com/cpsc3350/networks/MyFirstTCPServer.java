@@ -16,6 +16,18 @@ public class MyFirstTCPServer {
 //    read and write
 //    close child socket
 
+//    1 - write a simple server
+//    2 - write a simple client
+//    3 - send stuff back and forth to test / git
+//    4 - write a bill class
+//    5 - write encoding class
+//    6 - write decoding class
+//    7 - test encoding / git
+//    8 - incorporate encoding into server / client paradigm
+//    9 - test / git
+//    10 - check all criteria
+//    
+
     private static final int BUFFSIZE = 32;
 
     public static void main(String[] args){
