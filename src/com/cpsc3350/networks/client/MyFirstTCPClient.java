@@ -24,9 +24,21 @@ public class MyFirstTCPClient {
         InputStream in = clientSocket.getInputStream();
         OutputStream out = clientSocket.getOutputStream();
 
-        System.out.println("provide details of your order: ");
-        Scanner scan = new Scanner(System.in);
 
+        System.out.println("Enter a quantity: ");
+        Scanner scan = new Scanner(System.in);
+        while (scan.hasNext() && Integer.parseInt(scan.next()) != -2) {
+            System.out.println("Enter an item code: ");
+//            store the string - arrayList?
+            System.out.println("Enter a quantity: ");
+            if (Integer.parseInt(scan.next()) != -2) {
+//          store the quantity - arrayList?
+            } else {
+                return;
+            }
+        }
+
+//        The stored values should then be encoded into a byte array (A) in Big Endian.
         String userInput = scan.nextLine();
         scan.close();
 
@@ -39,5 +51,11 @@ public class MyFirstTCPClient {
 
         clientSocket.close();
 
+    }
+
+    private byte[] encode (String message) {
+        byte[] frame = new byte[message.length()];
+
+        return frame;
     }
 }
