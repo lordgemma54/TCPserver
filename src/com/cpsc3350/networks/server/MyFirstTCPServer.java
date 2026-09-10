@@ -1,4 +1,4 @@
-package com.cpsc3350.networks;
+package com.cpsc3350.networks.server;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +26,7 @@ public class MyFirstTCPServer {
 //    8 - incorporate encoding into server / client paradigm
 //    9 - test / git
 //    10 - check all criteria
-//    
+//
 
     private static final int BUFFSIZE = 32;
 
@@ -53,6 +53,7 @@ public class MyFirstTCPServer {
             ServerSocket serverSocket = new ServerSocket(portNum);
 
             byte[] byteBuffer = new byte[BUFFSIZE];
+            byte[] testByteStream = new byte[BUFFSIZE];
             int incMsgSize;
 
             for(;;) {
@@ -65,10 +66,12 @@ public class MyFirstTCPServer {
                 InputStream in = clientSocket.getInputStream();
                 OutputStream out = clientSocket.getOutputStream();
 
+//                read returns an int with the size of the message just added to the buffer
                 while((incMsgSize = in.read(byteBuffer)) != -1) {
-                    out.write(byteBuffer, 0, incMsgSize);
-                    byte b = (byte) incMsgSize;
-                    System.out.println(b);
+//                    out.write(byteBuffer, 0, incMsgSize);
+                    for (int i = 0; i < incMsgSize; i++) {
+                        System.out.println((char) byteBuffer[i]);
+                    }
                 }
 
 
@@ -77,7 +80,7 @@ public class MyFirstTCPServer {
 
         } catch (IOException ioe) {
             System.err.println("Error: Server socket not created on port " + portNum);
-            ioe.getStackTrace();
+            ioe.printStackTrace();
         }
 
     }
