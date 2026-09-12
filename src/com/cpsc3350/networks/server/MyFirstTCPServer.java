@@ -66,11 +66,11 @@ public class MyFirstTCPServer {
                 InputStream in = clientSocket.getInputStream();
                 OutputStream out = clientSocket.getOutputStream();
 
-//                read returns an int with the size of the message just added to the buffer
+//                read() returns an int with the size of the message just added to the buffer
                 while((incMsgSize = in.read(byteBuffer)) != -1) {
 //                    out.write(byteBuffer, 0, incMsgSize);
                     for (int i = 0; i < incMsgSize; i++) {
-                        System.out.println((char) byteBuffer[i]);
+                        System.out.println( byteBuffer[i]);
                     }
                 }
 
@@ -87,6 +87,7 @@ public class MyFirstTCPServer {
 
 
 // look up code received from the client, match it to the contents of the data file, and return the corresponding responses
-
+// javac com/cpsc3350/networks/client/MyFirstTCPClient.java     TO COMPILE
+// java com.cpsc3350.networks.client.MyFirstTCPClient localhost 10015      TO RUN
 
 }

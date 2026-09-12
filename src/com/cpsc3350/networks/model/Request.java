@@ -5,11 +5,12 @@ public class Request {
     private int tml;
     private int code;
     private int quantity;
+    private byte[] incFrame;
 
-    public Request (int code, int quantity) {
-        this.code = code;
-        this.quantity = quantity;
+    public Request (byte[] request) {
+        this.incFrame = request;
     }
+
 
     public int getCode() {
         return code;
