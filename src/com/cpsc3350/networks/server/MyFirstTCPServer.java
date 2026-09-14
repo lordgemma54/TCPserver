@@ -1,5 +1,7 @@
 package com.cpsc3350.networks.server;
 
+import com.cpsc3350.networks.model.Bill;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,21 +30,20 @@ public class MyFirstTCPServer {
 //    10 - check all criteria
 //
 
-    private static final int BUFFSIZE = 32;
+    private static final int BUFFSIZE = 1024;
+
 
     public static void main(String[] args){
-
-        int portNum = -1;
-
 //      arg length
         if(args.length != 1) {
             throw new IllegalArgumentException("Please enter the correct port");
         }
 
+        int portNum = Integer.parseInt(args[0]);
+
 //        store the correct port number
-        if (Integer.parseInt(args[0]) != 10015) {
-            System.out.println("port number invalid: " + portNum);
-        } else {
+        while (portNum != 10015) {
+            System.out.println("port number invalid: " + portNum + " Please try again.");
             portNum = Integer.parseInt(args[0]);
         }
 
@@ -53,7 +54,6 @@ public class MyFirstTCPServer {
             ServerSocket serverSocket = new ServerSocket(portNum);
 
             byte[] byteBuffer = new byte[BUFFSIZE];
-            byte[] testByteStream = new byte[BUFFSIZE];
             int incMsgSize;
 
             for(;;) {
@@ -68,23 +68,27 @@ public class MyFirstTCPServer {
 
 //                read() returns an int with the size of the message just added to the buffer
                 while((incMsgSize = in.read(byteBuffer)) != -1) {
-//                    out.write(byteBuffer, 0, incMsgSize);
-                    for (int i = 0; i < incMsgSize; i++) {
-                        System.out.println( byteBuffer[i]);
+                    byte[] receivedBytes = new byte[incMsgSize];
+                    System.arraycopy(byteBuffer, 0, receivedBytes, 0, incMsgSize);
+
+                    System.out.print("Received hex values from client: ");
+                    for(byte b : receivedBytes) {
+                        System.out.print(String.format("%02X ", b));
                     }
+
+                    processBytes(receivedBytes);
                 }
-
-
             }
-
-
         } catch (IOException ioe) {
             System.err.println("Error: Server socket not created on port " + portNum);
             ioe.printStackTrace();
         }
 
     }
+        private byte[] processBytes(byte[] receivedBytes) {
+            Bill bill = new Bill(receivedBytes);
 
+        }
 
 // look up code received from the client, match it to the contents of the data file, and return the corresponding responses
 // javac com/cpsc3350/networks/client/MyFirstTCPClient.java     TO COMPILE

@@ -8,10 +8,17 @@ public class Bill {
     private int quantity;
     private String description;
 
-    public Bill (int code, int quantity) {
+
+    public Bill (byte[] clientRequest) {
         this.code = code;
         this.quantity = quantity;
     }
+
+//    read in the csv
+//    discard the tml and requestNum
+//    match each code and quantity to lines in the file
+//    calculate totals
+//    create byte array to send back to server
 
     public int getCode() {
         return code;
