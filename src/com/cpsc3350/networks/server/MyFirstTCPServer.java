@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 
 public class MyFirstTCPServer {
 //    create parent socket -------
@@ -66,29 +67,52 @@ public class MyFirstTCPServer {
                 InputStream in = clientSocket.getInputStream();
                 OutputStream out = clientSocket.getOutputStream();
 
-//                read() returns an int with the size of the message just added to the buffer
-                while((incMsgSize = in.read(byteBuffer)) != -1) {
-                    byte[] receivedBytes = new byte[incMsgSize];
-                    System.arraycopy(byteBuffer, 0, receivedBytes, 0, incMsgSize);
+//  ------------------------------ CAPTURE TML ----------------------
+                byte[] bytesTML = new byte[2];
+                readFullArray(in, bytesTML);
 
-                    System.out.print("Received hex values from client: ");
-                    for(byte b : receivedBytes) {
-                        System.out.print(String.format("%02X ", b));
-                    }
+                ByteBuffer TMLBuffer = ByteBuffer.wrap(bytesTML);
+                short tml = TMLBuffer.getShort();
 
-                    processBytes(receivedBytes);
+                System.out.println("TML = " + tml);
+
+//  ------------------------------ CAPTURE REMAINING ----------------------
+                byte[] receivedBytes = new byte[tml];
+                System.arraycopy(bytesTML, 0, receivedBytes, 0, 2);
+                readFullArray(in, receivedBytes);
+
+//  ----------------------------------------------------
+                System.out.print("Received hex values from client: ");
+                for(byte b : receivedBytes) {
+                    System.out.print(String.format("%02X ", b & 0xFF));
                 }
+
+                byte[] responseBytes = processBill(receivedBytes);
+                out.write(responseBytes);
+                out.flush();
+                clientSocket.close();
             }
         } catch (IOException ioe) {
             System.err.println("Error: Server socket not created on port " + portNum);
             ioe.printStackTrace();
         }
-
     }
-        private byte[] processBytes(byte[] receivedBytes) {
-            Bill bill = new Bill(receivedBytes);
 
+    static byte[] processBill(byte[] receivedBytes) {
+            Bill bill = new Bill(receivedBytes);
+            return bill.buildBill();
+    }
+
+    private static void readFullArray(InputStream in, byte[] buffer) throws IOException {
+        int bytesRead = 0;
+        while(bytesRead < buffer.length) {
+            int n = in.read(buffer, bytesRead, buffer.length - bytesRead);
+            if (n == -1) {
+                throw new IOException("Incomplete array received");
+            }
+            bytesRead += n;
         }
+    }
 
 // look up code received from the client, match it to the contents of the data file, and return the corresponding responses
 // javac com/cpsc3350/networks/client/MyFirstTCPClient.java     TO COMPILE

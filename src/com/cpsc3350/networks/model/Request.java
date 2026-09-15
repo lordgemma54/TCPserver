@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Request {
-    private short requestNum = 1;
+    private static short requestNum = 1;
     private short tml;
     private ArrayList<Short> userInput;
     private byte[] rawBytes;
