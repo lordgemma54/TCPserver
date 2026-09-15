@@ -18,6 +18,7 @@ public class Request {
     private byte[] createByteArray(ArrayList<Short> userInput) {
         short msgLength = (short) userInput.size();
         tml = (short) (Short.BYTES + Short.BYTES + (msgLength * Short.BYTES));
+        System.out.println("client side tml: " + tml);
         ByteBuffer buffer = ByteBuffer.allocate(tml);
         buffer.putShort(tml);
         buffer.putShort(requestNum++);

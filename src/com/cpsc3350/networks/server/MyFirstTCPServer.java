@@ -48,8 +48,7 @@ public class MyFirstTCPServer {
             portNum = Integer.parseInt(args[0]);
         }
 
-//      try setting up the server
-//      wait for incoming request
+//      ------------------------------ SERVER SETUP ----------------------
         try {
             System.out.println("Initializng port on port number: " + portNum);
             ServerSocket serverSocket = new ServerSocket(portNum);
@@ -69,7 +68,14 @@ public class MyFirstTCPServer {
 
 //  ------------------------------ CAPTURE TML ----------------------
                 byte[] bytesTML = new byte[2];
-                readFullArray(in, bytesTML);
+                readFullArray(in, bytesTML, 0, 2);
+
+                System.out.print("Raw TML bytes received: ");
+                for (byte b : bytesTML) {
+                    System.out.printf("0x%02X ", b & 0xFF);
+                }
+
+                System.out.println();
 
                 ByteBuffer TMLBuffer = ByteBuffer.wrap(bytesTML);
                 short tml = TMLBuffer.getShort();
@@ -79,7 +85,7 @@ public class MyFirstTCPServer {
 //  ------------------------------ CAPTURE REMAINING ----------------------
                 byte[] receivedBytes = new byte[tml];
                 System.arraycopy(bytesTML, 0, receivedBytes, 0, 2);
-                readFullArray(in, receivedBytes);
+                readFullArray(in, receivedBytes, 2, tml - 2);
 
 //  ----------------------------------------------------
                 System.out.print("Received hex values from client: ");
@@ -103,10 +109,10 @@ public class MyFirstTCPServer {
             return bill.buildBill();
     }
 
-    private static void readFullArray(InputStream in, byte[] buffer) throws IOException {
+    private static void readFullArray(InputStream in, byte[] buffer, int offset, int length) throws IOException {
         int bytesRead = 0;
-        while(bytesRead < buffer.length) {
-            int n = in.read(buffer, bytesRead, buffer.length - bytesRead);
+        while(bytesRead < length) {
+            int n = in.read(buffer, offset + bytesRead, length - bytesRead);
             if (n == -1) {
                 throw new IOException("Incomplete array received");
             }

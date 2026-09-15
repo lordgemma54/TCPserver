@@ -31,26 +31,20 @@ public class MyFirstTCPClient {
 
         Scanner scan = new Scanner(System.in);
 
-        System.out.println("Enter an Item (enter -2 to end input): ");
-
+        System.out.println("Enter an Item code: ");
 
         while (scan.hasNext()) {
             short itemCode = Short.parseShort(scan.next());
-            if (itemCode == -2) {
-                userInput.add(itemCode);
-                break;
-            }
             while (itemCode < 0) {
                 System.out.println("Item codes are positive values, please enter a new item code:");
                 itemCode = Short.parseShort(scan.next());
             }
 
-            System.out.println("Enter a quantity: ");
+            System.out.println("Enter a quantity (enter -2 to end input): ");
             short quantity = Short.parseShort(scan.next());
-            if(quantity < 0) {
-                System.out.println("Must enter a quantity greater than 0");
-                System.out.println("Enter a quantity: ");
-                quantity = Short.parseShort(scan.next());
+            if (quantity == -2) {
+                userInput.add(quantity);
+                break;
             }
 
             userInput.add(quantity);
@@ -72,6 +66,43 @@ public class MyFirstTCPClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+//        ---------------------------------- READ SERVER RESPONSE ---------------
+        byte [] requestNumBytes = new byte[2];
+        readFullArray(in,requestNumBytes, 0, 2);
+        ByteBuffer reqNumBuffer = ByteBuffer.wrap(requestNumBytes);
+        short incomingReqNum = reqNumBuffer.getShort();
+        System.out.println(incomingReqNum);
+
+        byte [] incomingTML = new byte [2];
+        readFullArray(in, incomingTML, 0, 2);
+        ByteBuffer tmlBuffer = ByteBuffer.wrap(incomingTML);
+        short responseTml = tmlBuffer.getShort();
+        System.out.println(responseTml);
+
+        byte[] receivedBytes = new byte[responseTml];
+        System.arraycopy(requestNumBytes, 0, receivedBytes, 0, 2);
+        System.arraycopy(incomingTML, 0, receivedBytes, 2, 2);
+
+        readFullArray(in, receivedBytes, 4, responseTml - 4);
+
+        for (byte b : receivedBytes) {
+            System.out.printf(
+                    "0x%02X ",
+                    b & 0xFF
+            );
+        }
         clientSocket.close();
     }
+    private static void readFullArray(InputStream in, byte[] buffer, int offset, int length) throws IOException {
+        int bytesRead = 0;
+        while(bytesRead < length) {
+            int n = in.read(buffer, offset + bytesRead, length - bytesRead);
+            if (n == -1) {
+                throw new IOException("Incomplete array received");
+            }
+            bytesRead += n;
+        }
+    }
+
 }

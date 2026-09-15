@@ -56,6 +56,9 @@ public class Bill {
 
                 if (tokens.length >= 3) {
                     try {
+                        if (tokens[0].startsWith("\uFEFF")) {
+                            tokens[0] = tokens[0].substring(1);
+                        }
                         short itemCode = Short.parseShort(tokens[0].trim());
                         String description = tokens[1].trim();
                         short cost = Short.parseShort(tokens[2].trim());
@@ -87,10 +90,10 @@ public class Bill {
 
         while(readBuffer.hasRemaining()) {
             short incomingQuantity = readBuffer.getShort();
-            short incomingItemCode = readBuffer.getShort();
-            if (incomingItemCode == -2) {
+            if (incomingQuantity == -2) {
                 break;
             }
+            short incomingItemCode = readBuffer.getShort();
 
             String description = "";
             short cost =  0;
