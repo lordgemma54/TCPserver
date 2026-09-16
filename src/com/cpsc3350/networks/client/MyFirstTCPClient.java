@@ -86,14 +86,57 @@ public class MyFirstTCPClient {
 
         readFullArray(in, receivedBytes, 4, responseTml - 4);
 
+        clientSocket.close();
+
         for (byte b : receivedBytes) {
             System.out.printf(
                     "0x%02X ",
                     b & 0xFF
             );
         }
-        clientSocket.close();
+
+        ByteBuffer finalBuffer = ByteBuffer.wrap(receivedBytes);
+        short requestNum = finalBuffer.getShort();
+        short responseTML = finalBuffer.getShort();
+        int responseTotalCost = finalBuffer.getInt();
+
+        System.out.println();
+        System.out.println("==========================================");
+        System.out.println("                 BILL");
+        System.out.println("==========================================");
+        System.out.println("Request Number: " + requestNum);
+        System.out.println("------------------------------------------");
+
+        System.out.printf("%-25s %8s %8s %8s%n", "Description", "Cost", "Quantity", "Line Cost");
+        System.out.println("------------------------------------------");
+
+        while(finalBuffer.hasRemaining()) {
+            int descLength = finalBuffer.get() & 0xFF;
+            byte[] descriptionBytes = new byte[descLength];
+            finalBuffer.get(descriptionBytes);
+            String description = new String(descriptionBytes);
+            short itemCost = finalBuffer.getShort();
+            short quantity = finalBuffer.getShort();
+            int lineCost = itemCost * quantity;
+
+            System.out.printf("%-25s %8d %8d %8d%n",
+                    description,
+                    itemCost,
+                    quantity,
+                    lineCost);
+        }
+        System.out.println("------------------------------------------");
+        System.out.printf("%-25s %8s %8s %8d%n",
+                "TOTAL",
+                "",
+                "",
+                responseTotalCost);
+        System.out.println("==========================================");
+
+//        client must take a string url OR a dotted quad - and port number
+//        
     }
+
     private static void readFullArray(InputStream in, byte[] buffer, int offset, int length) throws IOException {
         int bytesRead = 0;
         while(bytesRead < length) {

@@ -99,7 +99,7 @@ public class MyFirstTCPServer {
                 clientSocket.close();
             }
         } catch (IOException ioe) {
-            System.err.println("Error: Server socket not created on port " + portNum);
+            System.err.println("I/O error on server using port: " + portNum);
             ioe.printStackTrace();
         }
     }
