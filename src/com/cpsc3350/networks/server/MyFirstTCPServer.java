@@ -31,9 +31,6 @@ public class MyFirstTCPServer {
 //    10 - check all criteria
 //
 
-    private static final int BUFFSIZE = 1024;
-
-
     public static void main(String[] args){
 //      arg length
         if(args.length != 1) {
@@ -52,9 +49,6 @@ public class MyFirstTCPServer {
         try {
             System.out.println("Initializng port on port number: " + portNum);
             ServerSocket serverSocket = new ServerSocket(portNum);
-
-            byte[] byteBuffer = new byte[BUFFSIZE];
-            int incMsgSize;
 
             for(;;) {
                 Socket clientSocket = serverSocket.accept();

@@ -21,35 +21,35 @@ public class MyFirstTCPClient {
             throw new IllegalArgumentException("Please enter an IP address and port number");
         }
 
-        String urlName = args[0];
+        String hostName = args[0];
         int portNum = Integer.parseInt(args[1]);
 
-        System.out.println("Connecting to url: " + urlName + " on port: " + portNum);
-        Socket clientSocket = new Socket(urlName, portNum);
+        System.out.println("Connecting to url: " + hostName + " on port: " + portNum);
+        Socket clientSocket = new Socket(hostName, portNum);
         InputStream in = clientSocket.getInputStream();
         OutputStream out = clientSocket.getOutputStream();
 
         Scanner scan = new Scanner(System.in);
 
-        System.out.println("Enter an Item code: ");
+        System.out.println("Enter a quantity (enter -2 to end input): ");
 
         while (scan.hasNext()) {
-            short itemCode = Short.parseShort(scan.next());
-            while (itemCode < 0) {
-                System.out.println("Item codes are positive values, please enter a new item code:");
-                itemCode = Short.parseShort(scan.next());
-            }
-
-            System.out.println("Enter a quantity (enter -2 to end input): ");
             short quantity = Short.parseShort(scan.next());
             if (quantity == -2) {
                 userInput.add(quantity);
                 break;
             }
 
+            System.out.println("Enter an Item code: ");
+            short itemCode = Short.parseShort(scan.next());
+            while (itemCode < 0) {
+                System.out.println("Item codes are positive values, please enter a new item code:");
+                itemCode = Short.parseShort(scan.next());
+            }
+
             userInput.add(quantity);
             userInput.add(itemCode);
-            System.out.println("Enter an Item: ");
+            System.out.println("Enter a quantity (enter -2 to end input): ");
         }
 
         scan.close();
@@ -99,20 +99,16 @@ public class MyFirstTCPClient {
         }
 
         ByteBuffer finalBuffer = ByteBuffer.wrap(receivedBytes);
+
+//        Process finalBuffer for display
+        ArrayList<BillItem> billList = new ArrayList<>();
+
         short requestNum = finalBuffer.getShort();
         short responseTML = finalBuffer.getShort();
         int responseTotalCost = finalBuffer.getInt();
+
+        int itemNum = 1;
         int checkTotal = 0;
-
-        System.out.println();
-        System.out.println("==============================================================");
-        System.out.println("                 BILL");
-        System.out.println("==============================================================");
-        System.out.println("Request Number: " + requestNum);
-        System.out.println("--------------------------------------------------------------");
-
-        System.out.printf("%-25s %8s %8s %8s%n", "Description", "Cost", "Quantity", "Line Cost");
-        System.out.println("--------------------------------------------------------------");
 
         while(finalBuffer.hasRemaining()) {
             int descLength = finalBuffer.get() & 0xFF;
@@ -124,27 +120,41 @@ public class MyFirstTCPClient {
             int lineCost = itemCost * quantity;
             checkTotal += lineCost;
 
-            System.out.printf("%-25s %8d %8d %8d%n",
-                    description,
-                    itemCost,
-                    quantity,
-                    lineCost);
+            billList.add(new BillItem(description, itemCost, quantity, lineCost));
+
         }
 
         if(checkTotal != responseTotalCost) {
             System.out.println("Error: the total cost in the response does not match the total computed by the client.");
-        }
+        } else {
+            System.out.println();
+            System.out.println("==============================================================");
+            System.out.println("                 BILL");
+            System.out.println("==============================================================");
+            System.out.println("Request Number: " + requestNum);
+            System.out.println("--------------------------------------------------------------");
 
+            System.out.printf("%-8s %-25s %8s %8s %8s%n", "Item #", "Description", "Cost", "Quantity", "Line Total");
+            System.out.println("--------------------------------------------------------------");
+
+            for (BillItem item : billList) {
+                System.out.printf("%-8d %-25s %8d %8d %8d%n",
+                        itemNum++,
+                        item.description,
+                        item.itemCost,
+                        item.quantity,
+                        item.lineCost);
+            }
+        }
         System.out.println("--------------------------------------------------------------");
-        System.out.printf("%-25s %8s %8s %8d%n",
+        System.out.printf("%-25s %8s %8s %8s %8d%n",
                 "TOTAL",
+                "",
                 "",
                 "",
                 responseTotalCost);
         System.out.println("==============================================================");
 
-//        client must take a string url OR a dotted quad - and port number
-//
     }
 
     private static void readFullArray(InputStream in, byte[] buffer, int offset, int length) throws IOException {
@@ -158,4 +168,18 @@ public class MyFirstTCPClient {
         }
     }
 
+}
+
+class BillItem {
+    String description;
+    short itemCost;
+    short quantity;
+    int lineCost;
+
+    public BillItem (String description, short itemCost, short quantity, int lineCost){
+        this.description = description;
+        this.itemCost = itemCost;
+        this.quantity = quantity;
+        this.lineCost = lineCost;
+    }
 }

@@ -21,17 +21,10 @@ public class Bill {
     private String filePath = "data.csv";
     private final Map<Short, ItemDetails> itemMap = new HashMap<>();
 
-//    private short requestNum;
-//    private short itemCode;
-//    private short quantity;
-//    private short cost;
-//    private String description;
-
 //    -------------------------BILL CONSTRUCTOR-----------------------------
     public Bill (byte[] clientRequest) {
        this.clientRequest = clientRequest;
        loadCSV(this.filePath);
-//       buildBill();
     }
 
 //    ----------------------------------------------------------------------
@@ -81,6 +74,18 @@ public class Bill {
 
         short incomingTML = readBuffer.getShort();
         short incomingRequestNum = readBuffer.getShort();
+
+//        builds error response if tml and byte array length do not match
+            if (incomingTML != clientRequest.length) {
+                // Build the error response: request number (short) + -2 (short)
+                ByteBuffer errorBuffer = ByteBuffer.allocate(4);
+                errorBuffer.order(ByteOrder.BIG_ENDIAN);
+                errorBuffer.putShort(incomingRequestNum);
+                errorBuffer.putShort((short) -2);
+
+                return errorBuffer.array();
+              }
+
         System.out.println("Incoming TML: " + incomingTML);
         System.out.println("Incoming Request number: " + incomingRequestNum);
 
