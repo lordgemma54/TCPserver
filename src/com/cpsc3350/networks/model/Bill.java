@@ -104,7 +104,6 @@ public class Bill {
                     cost = itemDetail.itemCost;
                 } else {
                     description = "Article not available";
-                    cost = 0;
                 }
                 billTotal += cost * incomingQuantity;
             ProcessedItem processedItem = new ProcessedItem(description, incomingQuantity, cost);

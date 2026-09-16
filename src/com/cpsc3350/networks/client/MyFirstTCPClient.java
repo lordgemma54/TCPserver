@@ -49,7 +49,7 @@ public class MyFirstTCPClient {
 
             userInput.add(quantity);
             userInput.add(itemCode);
-            System.out.println("Enter an Item (enter -2 to end input): ");
+            System.out.println("Enter an Item: ");
         }
 
         scan.close();
@@ -57,7 +57,10 @@ public class MyFirstTCPClient {
         request = new Request(userInput);
         byte[] bytes = request.getBytes();
         for(byte b : bytes) {
-            System.out.print(String.format("%02X ", b));
+            System.out.printf(
+                    "0x%02X ",
+                    b & 0xFF
+            );
         }
 
         try {
@@ -99,16 +102,17 @@ public class MyFirstTCPClient {
         short requestNum = finalBuffer.getShort();
         short responseTML = finalBuffer.getShort();
         int responseTotalCost = finalBuffer.getInt();
+        int checkTotal = 0;
 
         System.out.println();
-        System.out.println("==========================================");
+        System.out.println("==============================================================");
         System.out.println("                 BILL");
-        System.out.println("==========================================");
+        System.out.println("==============================================================");
         System.out.println("Request Number: " + requestNum);
-        System.out.println("------------------------------------------");
+        System.out.println("--------------------------------------------------------------");
 
         System.out.printf("%-25s %8s %8s %8s%n", "Description", "Cost", "Quantity", "Line Cost");
-        System.out.println("------------------------------------------");
+        System.out.println("--------------------------------------------------------------");
 
         while(finalBuffer.hasRemaining()) {
             int descLength = finalBuffer.get() & 0xFF;
@@ -118,6 +122,7 @@ public class MyFirstTCPClient {
             short itemCost = finalBuffer.getShort();
             short quantity = finalBuffer.getShort();
             int lineCost = itemCost * quantity;
+            checkTotal += lineCost;
 
             System.out.printf("%-25s %8d %8d %8d%n",
                     description,
@@ -125,16 +130,21 @@ public class MyFirstTCPClient {
                     quantity,
                     lineCost);
         }
-        System.out.println("------------------------------------------");
+
+        if(checkTotal != responseTotalCost) {
+            System.out.println("Error: the total cost in the response does not match the total computed by the client.");
+        }
+
+        System.out.println("--------------------------------------------------------------");
         System.out.printf("%-25s %8s %8s %8d%n",
                 "TOTAL",
                 "",
                 "",
                 responseTotalCost);
-        System.out.println("==========================================");
+        System.out.println("==============================================================");
 
 //        client must take a string url OR a dotted quad - and port number
-//        
+//
     }
 
     private static void readFullArray(InputStream in, byte[] buffer, int offset, int length) throws IOException {
