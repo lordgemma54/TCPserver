@@ -148,10 +148,6 @@ public class Bill {
         return buffer.array();
     }
 
-//    read in the csv
-//    match each code and quantity to lines in the file
-//    calculate totals
-//    create byte array to send back to server
 
 
 }
